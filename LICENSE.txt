@@ -8,15 +8,18 @@ without restriction, including without limitation the rights to sublicense
 and/or sell copies of the Software, subject to the following conditions:
 
 POSTCARDWARE CONDITION
-If you use this software and find it useful, you are kindly asked — but not
-legally required — to send a physical postcard to the author:
+This software is Postcardware. If you use it and find it useful, you are
+kindly asked — but not legally required — to send the author a postcard
+from wherever you are in the world.
 
-    Iwo Host
-    [Your mailing address here]
+    Right now there is no mailing address listed here. The author is based
+    in Poland, and if enough people want to send postcards, a PO Box will
+    be opened and the address will be published. Keep an eye on the GitHub
+    repository for updates.
 
 The postcard should show something from where you live. A photo, a drawing,
 a stamp — anything that travelled through the real world counts.
-This is the entire social contract.
+That is the entire social contract.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
