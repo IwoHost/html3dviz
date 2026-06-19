@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML3DViz — 3D DOM Explorer</title>
+  <meta name="description" content="Visualize HTML structure in interactive 3D. Rotate, inspect, and heatmap your DOM.">
+  <link rel="stylesheet" href="style/app.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+<!-- ─── Minimum width overlay ─────────────────────────────────────────── -->
+<div id="narrow-overlay" class="hidden">
+  <div class="narrow-icon">⬛</div>
+  <h3>HTML3DViz requires a wider screen</h3>
+  <p>Please expand your browser window to at least 1024px wide,<br>or open on a desktop device.</p>
+  <p class="narrow-width">Current width: —</p>
+</div>
+
+<!-- ─── App shell ─────────────────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- Toolbar -->
+  <header id="toolbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2"  y="14" width="18" height="5" rx="1" fill="#4444ff" opacity="0.9"/>
+        <rect x="4"  y="9"  width="14" height="5" rx="1" fill="#6666ff" opacity="0.75"/>
+        <rect x="6"  y="4"  width="10" height="5" rx="1" fill="#8888ff" opacity="0.6"/>
+      </svg>
+      <span class="logo-text">HTML3DViz</span>
+    </div>
+    <div class="toolbar-divider"></div>
+
+    <!-- Heatmap dropdown -->
+    <div class="dropdown-wrap" style="position:relative;">
+      <span class="dropdown-label">Heatmap</span>
+      <button class="dropdown-btn" id="heatmap-btn" title="Toggle heatmap mode (H)">
+        <span class="heatmap-label">Off</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div class="dropdown-menu" id="heatmap-menu">
+        <div class="dropdown-menu-item selected" data-mode="off"><span class="check">✓</span> Off</div>
+        <div class="dropdown-sep"></div>
+        <div class="dropdown-menu-item" data-mode="depth"><span class="check">✓</span> DOM Depth</div>
+        <div class="dropdown-menu-item" data-mode="zindex"><span class="check">✓</span> Z-Index</div>
+        <div class="dropdown-menu-item" data-mode="stacking"><span class="check">✓</span> Stacking Context</div>
+        <div class="dropdown-menu-item" data-mode="size"><span class="check">✓</span> Element Size</div>
+      </div>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <!-- Depth spread -->
+    <div class="spread-wrap">
+      <span class="spread-label">Spread</span>
+      <input class="spread-slider" id="spread-slider" type="range" min="1" max="20" value="8" title="Layer spread">
+      <span class="spread-val" id="spread-value">8</span>
+    </div>
+
+    <div class="toolbar-spacer"></div>
+
+    <!-- Action buttons -->
+    <button class="icon-btn" id="btn-reset" title="Reset camera (R)">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><path d="M7.5 1C4 1 1 4 1 7.5S4 14 7.5 14 14 11 14 7.5h-1C13 10.5 10.5 13 7.5 13S2 10.5 2 7.5 4.5 2 7.5 2V1z"/><path d="M13 1l-2 4h4z"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-labels" title="Toggle labels (L)">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="4" width="9" height="2.5" rx="1"/><rect x="1" y="8" width="7" height="2.5" rx="1"/><rect x="1" y="12" width="5" height="2.5" rx="1"/><rect x="11" y="4" width="3" height="2.5" rx="1"/></svg>
+    </button>
+    <button class="icon-btn text-icon-btn" id="btn-export" title="Export PNG (Shift+E)">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6.5 1v7M3.5 6l3 3 3-3M1 10v2h11v-2"/></svg>
+      Export
+    </button>
+    <button class="icon-btn" id="btn-shortcuts" title="Keyboard shortcuts (?)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2" fill="none"/><text x="7" y="10.5" text-anchor="middle" font-size="8" font-weight="bold">?</text></svg>
+    </button>
+  </header>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="section-label">INPUT</div>
+
+    <textarea id="html-input" spellcheck="false"
+      placeholder="<!-- Paste HTML here -->&#10;<div class=&quot;container&quot;>&#10;  <header>...</header>&#10;  <main>...</main>&#10;</div>"></textarea>
+
+    <div class="url-row">
+      <input id="url-input" type="url" placeholder="https://example.com">
+      <button id="btn-fetch">Fetch</button>
+    </div>
+
+    <div id="proxy-warning" class="warning-inline hidden">
+      ⚠ Fetch uses a CORS proxy. Don't paste sensitive URLs.
+      <span class="warn-dismiss">dismiss ×</span>
+    </div>
+
+    <div id="fetch-status" class="fetch-status"></div>
+    <div id="render-error" class="render-error hidden"></div>
+
+    <button id="btn-render" disabled>Render</button>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="slider-section">
+      <div class="slider-row">
+        <span class="slider-row-label">Layer Opacity</span>
+        <span class="slider-row-val" id="opacity-value">75%</span>
+      </div>
+      <input class="full-slider" id="opacity-slider" type="range" min="0" max="100" value="75">
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="section-label">
+      FILTER ELEMENTS
+      <span class="section-label-count" id="filter-count"></span>
+    </div>
+    <div class="filter-controls">
+      <button class="text-btn" id="btn-select-all">Select all</button>
+      <button class="text-btn" id="btn-select-none">Select none</button>
+    </div>
+    <div id="tag-filters"></div>
+  </aside>
+
+  <!-- Canvas container -->
+  <div id="canvas-container">
+    <!-- First visit callout -->
+    <div id="first-visit-callout" class="hidden">↑ Start by pasting HTML here or try the demo →</div>
+
+    <!-- Empty state -->
+    <div id="empty-state">
+      <div class="empty-illustration">
+        <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(20, 10) rotate(-15, 60, 55)">
+            <rect x="10" y="70" width="100" height="28" rx="3" fill="#4444ff" opacity="0.5"/>
+            <rect x="18" y="46" width="84"  height="28" rx="3" fill="#6666ff" opacity="0.45"/>
+            <rect x="26" y="22" width="68"  height="28" rx="3" fill="#8888ff" opacity="0.4"/>
+            <rect x="34" y="2"  width="52"  height="24" rx="3" fill="#aaaaff" opacity="0.35"/>
+          </g>
+        </svg>
+      </div>
+      <h2>HTML3DViz</h2>
+      <p>Paste HTML in the sidebar or try a demo →</p>
+      <div class="empty-actions">
+        <button class="btn-primary" id="btn-demo">Load Demo</button>
+        <button class="btn-secondary" id="btn-paste">Paste from clipboard</button>
+      </div>
+    </div>
+
+    <!-- Three.js canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Heatmap legend -->
+    <div id="heatmap-legend" class="hidden">
+      <div class="legend-title"></div>
+      <div class="legend-entries"></div>
+    </div>
+
+    <!-- Progress overlay -->
+    <div id="progress-overlay" class="hidden">
+      <div id="progress-bar"></div>
+      <div id="progress-text">Building 3D structure...</div>
+    </div>
+
+    <!-- Detail panel -->
+    <div id="detail-panel" class="hidden" style="transform:translateX(272px)">
+      <div class="panel-header">
+        <span id="panel-tag">&lt;div&gt;</span>
+        <button id="panel-close">×</button>
+      </div>
+      <div id="panel-content"></div>
+    </div>
+
+    <!-- Postcardware nag -->
+    <div id="postcard-nag" class="hidden">
+      <span style="font-size:14px">✉</span>
+      <span class="postcard-text">This tool is free. If it helped you, the author would love a postcard. No pressure.</span>
+      <a id="postcard-link" href="#">Where to send it</a>
+      <button id="postcard-close">×</button>
+    </div>
+
+    <!-- WebGL error (shown if WebGL unavailable) -->
+    <div id="webgl-error" class="hidden">
+      <div class="webgl-icon">🧊</div>
+      <h3>WebGL is not available</h3>
+      <p>HTML3DViz requires WebGL to render the 3D view.<br>Enable it in your browser settings or try Chrome, Firefox, or Edge.</p>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <footer id="status-bar">
+    <span id="status-elements"></span>
+    <span id="status-contexts"></span>
+    <span id="status-anomalies"></span>
+    <span id="status-selected"></span>
+    <span class="status-spacer"></span>
+    <span id="status-tech">Three.js r168 · WebGL 2</span>
+  </footer>
+
+</div><!-- #app -->
+
+<!-- Large DOM modal -->
+<div id="large-dom-modal" class="hidden">
+  <div class="modal-box">
+    <h3>Large DOM detected</h3>
+    <p>HTML3DViz found <span class="modal-count">0</span> elements.<br>
+    Rendering all of them may slow or freeze your browser.</p>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modal-render-500">Render first 500 elements</button>
+      <button class="modal-btn-warn" id="modal-render-all">Render all (not recommended)</button>
+      <button class="modal-btn-cancel" id="modal-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard shortcuts panel -->
+<div id="shortcuts-panel" class="hidden">
+  <div class="shortcuts-header">
+    <h4>Keyboard Shortcuts</h4>
+    <button class="shortcuts-close">×</button>
+  </div>
+  <div class="shortcuts-grid">
+    <div class="shortcut-row"><span class="shortcut-key">R</span><span class="shortcut-desc">Reset camera</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">H</span><span class="shortcut-desc">Cycle heatmap</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">L</span><span class="shortcut-desc">Toggle labels</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">F</span><span class="shortcut-desc">Frame selected</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">Esc</span><span class="shortcut-desc">Deselect</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">⇧E</span><span class="shortcut-desc">Export PNG</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">[</span><span class="shortcut-desc">Select parent</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">]</span><span class="shortcut-desc">Select child</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">Tab</span><span class="shortcut-desc">Next sibling</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">⇧Tab</span><span class="shortcut-desc">Prev sibling</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">?</span><span class="shortcut-desc">This panel</span></div>
+    <div class="shortcut-row"><span class="shortcut-key">Dbl</span><span class="shortcut-desc">Zoom to element</span></div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

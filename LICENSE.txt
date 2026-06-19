@@ -1,0 +1,27 @@
+HTML3DViz — Postcardware License
+Copyright (c) 2026 Iwo Host
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, and distribute the Software for any purpose,
+without restriction, including without limitation the rights to sublicense
+and/or sell copies of the Software, subject to the following conditions:
+
+POSTCARDWARE CONDITION
+If you use this software and find it useful, you are kindly asked — but not
+legally required — to send a physical postcard to the author:
+
+    Iwo Host
+    [Your mailing address here]
+
+The postcard should show something from where you live. A photo, a drawing,
+a stamp — anything that travelled through the real world counts.
+This is the entire social contract.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
