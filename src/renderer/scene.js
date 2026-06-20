@@ -25,21 +25,35 @@ export class SceneManager {
       preserveDrawingBuffer: true, // needed for export
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.setClearColor(0x0d0d0d, 1);
+    this.renderer.setClearColor(0x04040a, 1);
     this._resize();
   }
 
   _initScene() {
     this.scene = new THREE.Scene();
     this.meshes = []; // { mesh, record }
+
+    // Holographic floor grid (neon cyan)
+    const gridHelper = new THREE.GridHelper(4000, 40, 0x00d4ff, 0x002233);
+    gridHelper.position.y = -500;
+    gridHelper.material.opacity = 0.18;
+    gridHelper.material.transparent = true;
+    this.scene.add(gridHelper);
+
+    // Deep blue fog for depth and atmosphere
+    this.scene.fog = new THREE.FogExp2(0x04040a, 0.00028);
   }
 
   _initCamera() {
     const { width, height } = this.canvas.getBoundingClientRect();
     this.camera = new THREE.PerspectiveCamera(50, width / height, 1, 50000);
-    this.camera.position.set(0, 0, 1200);
+    // Slightly angled default — dramatic but readable
+    this.camera.position.set(0, -200, 1200);
     this._defaultCameraPos = this.camera.position.clone();
     this._defaultTarget = new THREE.Vector3(0, 0, 0);
+    // Front view (dead-on) position stored separately
+    this._frontCameraPos = new THREE.Vector3(0, 0, 1200);
+    this._frontTarget = new THREE.Vector3(0, 0, 0);
   }
 
   _initControls() {
@@ -129,6 +143,24 @@ export class SceneManager {
       update: t => {
         this.camera.position.lerpVectors(from, this._defaultCameraPos, t);
         this.controls.target.lerpVectors(fromTarget, this._defaultTarget, t);
+      },
+    });
+  }
+
+  frontView(animated = true) {
+    if (!animated) {
+      this.camera.position.copy(this._frontCameraPos);
+      this.controls.target.copy(this._frontTarget);
+      return;
+    }
+    const from = this.camera.position.clone();
+    const fromTarget = this.controls.target.clone();
+    this.addTween({
+      duration: 500,
+      ease: easeInOut,
+      update: t => {
+        this.camera.position.lerpVectors(from, this._frontCameraPos, t);
+        this.controls.target.lerpVectors(fromTarget, this._frontTarget, t);
       },
     });
   }

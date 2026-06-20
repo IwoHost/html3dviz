@@ -1,4 +1,4 @@
-export const DEFAULT_SPREAD = 8;
+export const DEFAULT_SPREAD = 10;
 export const LAYER_GAP = 40;
 export const Z_INDEX_SCALE = 0.5;
 export const MAX_ELEMENTS = 2000;
