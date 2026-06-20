@@ -5,6 +5,7 @@ export class Toolbar {
     onHeatmapChange,
     onSpreadChange,
     onReset,
+    onFrontView,
     onLabelsToggle,
     onExport,
     onShortcuts,
@@ -12,6 +13,7 @@ export class Toolbar {
     this._onHeatmap = onHeatmapChange;
     this._onSpread = onSpreadChange;
     this._onReset = onReset;
+    this._onFrontView = onFrontView;
     this._onLabels = onLabelsToggle;
     this._onExport = onExport;
     this._labelsOn = false;
@@ -51,6 +53,9 @@ export class Toolbar {
 
     // Reset
     document.getElementById('btn-reset')?.addEventListener('click', () => this._onReset?.());
+
+    // Front View
+    document.getElementById('btn-front-view')?.addEventListener('click', () => this._onFrontView?.());
 
     // Labels toggle
     const labelsBtn = document.getElementById('btn-labels');

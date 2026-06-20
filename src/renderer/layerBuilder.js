@@ -23,7 +23,7 @@ function buildTextureFromScreenshot(screenshot, record) {
     // Draw the cropped region from the full-page screenshot
     ctx.drawImage(screenshot, left, top, w, h, 0, 0, w, h);
     // Thin border overlay so elements have visible edges
-    ctx.strokeStyle = 'rgba(100,120,255,0.5)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.6)';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(0.75, 0.75, w - 1.5, h - 1.5);
   } else {
@@ -63,7 +63,7 @@ export function rebuildTextureWithHeat(mesh, heatColor, opacity) {
   if (screenshot && heatColor === null) {
     // Show real screenshot
     ctx.drawImage(screenshot, left, top, w, h, 0, 0, w, h);
-    ctx.strokeStyle = 'rgba(100,120,255,0.4)';
+    ctx.strokeStyle = 'rgba(0,212,255,0.4)';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(0.75, 0.75, w - 1.5, h - 1.5);
   } else {

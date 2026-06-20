@@ -34,11 +34,11 @@
   <header id="toolbar">
     <div class="logo">
       <svg class="logo-icon" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2"  y="14" width="18" height="5" rx="1" fill="#4444ff" opacity="0.9"/>
-        <rect x="4"  y="9"  width="14" height="5" rx="1" fill="#6666ff" opacity="0.75"/>
-        <rect x="6"  y="4"  width="10" height="5" rx="1" fill="#8888ff" opacity="0.6"/>
+        <rect x="2"  y="14" width="18" height="5" rx="1" fill="#00d4ff" opacity="0.9"/>
+        <rect x="4"  y="9"  width="14" height="5" rx="1" fill="#6600ff" opacity="0.75"/>
+        <rect x="6"  y="4"  width="10" height="5" rx="1" fill="#bf00ff" opacity="0.6"/>
       </svg>
-      <span class="logo-text">HTML3DViz</span>
+      <span class="logo-text">HTML3DViz</span><span class="logo-cursor"></span>
     </div>
     <div class="toolbar-divider"></div>
 
@@ -64,8 +64,8 @@
     <!-- Depth spread -->
     <div class="spread-wrap">
       <span class="spread-label">Spread</span>
-      <input class="spread-slider" id="spread-slider" type="range" min="1" max="20" value="8" title="Layer spread">
-      <span class="spread-val" id="spread-value">8</span>
+      <input class="spread-slider" id="spread-slider" type="range" min="1" max="20" value="10" title="Layer spread">
+      <span class="spread-val" id="spread-value">10</span>
     </div>
 
     <div class="toolbar-spacer"></div>
@@ -73,6 +73,10 @@
     <!-- Action buttons -->
     <button class="icon-btn" id="btn-reset" title="Reset camera (R)">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><path d="M7.5 1C4 1 1 4 1 7.5S4 14 7.5 14 14 11 14 7.5h-1C13 10.5 10.5 13 7.5 13S2 10.5 2 7.5 4.5 2 7.5 2V1z"/><path d="M13 1l-2 4h4z"/></svg>
+    </button>
+    <button class="icon-btn text-icon-btn" id="btn-front-view" title="Snap to front view">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><rect x="1" y="1" width="11" height="11" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="6.5" cy="6.5" r="1.5"/></svg>
+      Front
     </button>
     <button class="icon-btn" id="btn-labels" title="Toggle labels (L)">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor"><rect x="1" y="4" width="9" height="2.5" rx="1"/><rect x="1" y="8" width="7" height="2.5" rx="1"/><rect x="1" y="12" width="5" height="2.5" rx="1"/><rect x="11" y="4" width="3" height="2.5" rx="1"/></svg>
@@ -141,10 +145,10 @@
       <div class="empty-illustration">
         <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g transform="translate(20, 10) rotate(-15, 60, 55)">
-            <rect x="10" y="70" width="100" height="28" rx="3" fill="#4444ff" opacity="0.5"/>
-            <rect x="18" y="46" width="84"  height="28" rx="3" fill="#6666ff" opacity="0.45"/>
-            <rect x="26" y="22" width="68"  height="28" rx="3" fill="#8888ff" opacity="0.4"/>
-            <rect x="34" y="2"  width="52"  height="24" rx="3" fill="#aaaaff" opacity="0.35"/>
+            <rect x="10" y="70" width="100" height="28" rx="3" fill="#00d4ff" opacity="0.5"/>
+            <rect x="18" y="46" width="84"  height="28" rx="3" fill="#6600ff" opacity="0.5"/>
+            <rect x="26" y="22" width="68"  height="28" rx="3" fill="#bf00ff" opacity="0.45"/>
+            <rect x="34" y="2"  width="52"  height="24" rx="3" fill="#ff0066" opacity="0.35"/>
           </g>
         </svg>
       </div>

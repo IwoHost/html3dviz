@@ -52,6 +52,7 @@ async function init() {
       if (meshItems.length) updateSpread(meshItems, spread);
     },
     onReset: () => sceneManager.resetCamera(),
+    onFrontView: () => sceneManager.frontView(),
     onLabelsToggle: on => {
       labelsVisible = on;
       setLabelsVisible(on);
