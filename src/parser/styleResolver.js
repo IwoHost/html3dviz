@@ -1,13 +1,12 @@
 import { walkDOM } from './domParser.js';
 
-const IFRAME_TIMEOUT = 8000;
+const IFRAME_TIMEOUT = 15000;
 const IFRAME_W = 1440;
 const IFRAME_H = 900;
 
 export async function resolveLayout(htmlStr) {
   return new Promise((resolve, reject) => {
     const iframe = document.createElement('iframe');
-    // allow-scripts needed so html2canvas can run inside the iframe
     iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
     iframe.style.cssText = [
       `position:fixed`,
@@ -15,7 +14,7 @@ export async function resolveLayout(htmlStr) {
       `top:0`,
       `width:${IFRAME_W}px`,
       `height:${IFRAME_H}px`,
-      `visibility:hidden`,
+      `opacity:0`,
       `pointer-events:none`,
       `border:none`,
     ].join(';');
@@ -30,20 +29,22 @@ export async function resolveLayout(htmlStr) {
       if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
     }
 
+    // Using srcdoc instead of doc.write() fires exactly ONE load event
+    // (doc.write on about:blank fires two: once for about:blank, once for content)
     iframe.onload = () => {
       // Two rAF ticks to ensure layout is complete
       requestAnimationFrame(() => requestAnimationFrame(async () => {
         try {
           const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-          const iframeWin = iframe.contentWindow;
 
           // 1. Collect layout records from the live DOM
           const records = walkDOM(iframeDoc, iframeDoc);
 
-          // 2. Inject html2canvas into the iframe and capture full-page screenshot
+          // 2. Capture full-page screenshot using parent window's html2canvas
+          //    (already loaded in the parent, no injection needed)
           let screenshot = null;
           try {
-            screenshot = await captureIframe(iframe, iframeDoc, iframeWin);
+            screenshot = await captureIframe(iframe, iframeDoc);
           } catch (e) {
             console.warn('html2canvas capture failed, falling back to colored boxes:', e.message);
           }
@@ -62,33 +63,26 @@ export async function resolveLayout(htmlStr) {
       reject(new Error('Iframe failed to load'));
     };
 
-    // Build the full HTML with a base tag to help relative resources resolve
     const normalized = htmlStr.trimStart().toLowerCase();
     const hasDoctype = normalized.startsWith('<!doctype') || normalized.startsWith('<html');
     const fullHtml = hasDoctype
       ? htmlStr
       : `<!DOCTYPE html><html><head><style>*{box-sizing:border-box}body{margin:0}</style></head><body>${htmlStr}</body></html>`;
 
+    // srcdoc fires exactly one load event for the actual content
+    iframe.srcdoc = fullHtml;
     document.body.appendChild(iframe);
-
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (doc) {
-      doc.open();
-      doc.write(fullHtml);
-      doc.close();
-    } else {
-      iframe.srcdoc = fullHtml;
-    }
   });
 }
 
-async function captureIframe(iframe, iframeDoc, iframeWin) {
-  // Inject html2canvas script into the iframe
-  await injectScript(iframeDoc, '/vendor/html2canvas.min.js');
+async function captureIframe(iframe, iframeDoc) {
+  // Use the parent window's html2canvas (loaded via <script> in index.html).
+  // html2canvas internally uses element.ownerDocument.defaultView.getComputedStyle,
+  // so styles are correctly computed from the iframe's CSS cascade.
+  const h2c = window.html2canvas;
+  if (!h2c) throw new Error('html2canvas not available on parent window');
 
-  if (!iframeWin.html2canvas) throw new Error('html2canvas not available in iframe');
-
-  const canvas = await iframeWin.html2canvas(iframeDoc.body, {
+  const canvas = await h2c(iframeDoc.body, {
     useCORS: true,
     allowTaint: true,
     logging: false,
@@ -99,14 +93,4 @@ async function captureIframe(iframe, iframeDoc, iframeWin) {
     scale: 1,
   });
   return canvas;
-}
-
-function injectScript(doc, src) {
-  return new Promise((resolve, reject) => {
-    const script = doc.createElement('script');
-    script.src = src;
-    script.onload = resolve;
-    script.onerror = reject;
-    (doc.head || doc.body).appendChild(script);
-  });
 }
