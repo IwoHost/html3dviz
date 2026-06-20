@@ -22,7 +22,7 @@ let selectedMesh = null;
 let labelsVisible = false;
 let currentHeatmap = 'off';
 let currentSpread = DEFAULT_SPREAD;
-let currentOpacity = 0.75;
+let currentOpacity = 0.92;
 let raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 
@@ -140,7 +140,8 @@ async function renderHTML(html, sidebar) {
   sidebar.clearError();
 
   try {
-    const records = await resolveLayout(html);
+    setProgress(30, 'Rendering page...');
+    const { records, screenshot } = await resolveLayout(html);
 
     if (records.length === 0) {
       hideProgress(true);
@@ -155,7 +156,7 @@ async function renderHTML(html, sidebar) {
       records.splice(WARN_ELEMENTS);
     }
 
-    setProgress(60, 'Building 3D structure...');
+    setProgress(70, 'Building 3D structure...');
     currentRecords = records;
 
     // Clear old scene
@@ -165,8 +166,8 @@ async function renderHTML(html, sidebar) {
     selectedMesh = null;
     hidePanel();
 
-    // Build new scene
-    const items = buildScene(sceneManager.scene, records, currentSpread, currentOpacity);
+    // Build new scene — pass screenshot for real visual textures
+    const items = buildScene(sceneManager.scene, records, screenshot, currentSpread, currentOpacity);
     meshItems.push(...items);
 
     // Update scene manager mesh list

@@ -1,6 +1,5 @@
 import { depthColor, zindexColor, sizeColor, lerpHex } from '../utils/colorScale.js';
-import { setMeshColor } from './layerBuilder.js';
-import { TAG_COLORS } from '../utils/constants.js';
+import { setMeshColor, restoreScreenshotTexture } from './layerBuilder.js';
 
 const LEGEND_DATA = {
   off: null,
@@ -43,8 +42,7 @@ const LEGEND_DATA = {
 export function computeHeatColors(meshItems, mode) {
   if (mode === 'off') {
     for (const { mesh } of meshItems) {
-      const col = mesh.userData.record.baseColor;
-      setMeshColor(mesh, col, mesh.userData.baseOpacity);
+      restoreScreenshotTexture(mesh);
     }
     return;
   }
